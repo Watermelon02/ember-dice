@@ -273,7 +273,10 @@
                     <div id="entries-content" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 hidden">
                         <!-- 穿甲（数值型） -->
                         <div class="bg-gray-50 rounded-lg p-4 flex flex-col">
-                            <label class="text-gray-700 font-medium mb-2">穿甲</label>
+                            <label class="text-gray-700 font-medium mb-2">
+                                穿甲
+                                <p class="text-sm text-gray-400 mt-2">遭受本攻击时，受击方减少x枚白骰</p>
+                            </label>
                             <div class="flex items-center justify-center space-x-1">
                                 <button
                                     class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold h-8 w-8 flex items-center justify-center rounded"
@@ -289,7 +292,10 @@
 
                         <!-- 脆弱（数值型） -->
                         <div class="bg-gray-50 rounded-lg p-4 flex flex-col">
-                            <label class="text-gray-700 font-medium mb-2">脆弱</label>
+                            <label class="text-gray-700 font-medium mb-2">脆弱
+                                <p class="text-sm text-gray-400 mt-2">单位受击时，-1白骰，效果可以叠加</p>
+
+                            </label>
                             <div class="flex items-center justify-center space-x-1">
                                 <button
                                     class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold h-8 w-8 flex items-center justify-center rounded"
@@ -307,6 +313,7 @@
                         <label
                             class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
                             <span class="font-medium text-gray-700">低特征</span>
+                            <p class="text-sm text-gray-400 mt-1">遭受射击时眼睛可视为闪避</p>
                             <input type="checkbox" id="low-profile"
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
@@ -315,6 +322,7 @@
                         <label
                             class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
                             <span class="font-medium text-gray-700">Kc装甲</span>
+                            <p class="text-sm text-gray-400 mt-2">可将闪电视为防御</p>
                             <input type="checkbox" id="kc-armor"
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
@@ -323,6 +331,7 @@
                         <label
                             class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
                             <span class="font-medium text-gray-700">频闪武器</span>
+                            <p class="text-sm text-gray-400 mt-2">可将闪电视为重击</p>
                             <input type="checkbox" id="strobe-weapon"
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
@@ -332,25 +341,28 @@
                             class="bg-gray-50 rounded-lg p-4 flex flex-col justify-between cursor-pointer hover:bg-gray-100 transition">
                             <div class="flex items-center justify-between">
                                 <span class="font-medium text-gray-700">离子武器</span>
+                                <p class="text-sm text-gray-400 mt-2">命中有脆弱标记的目标时，闪电可视为重击</p>
                                 <input type="checkbox" id="ion-weapon"
                                     class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary"
                                     disabled>
                             </div>
-                            <p class="text-sm text-gray-400 mt-2">需有脆弱标记后解锁</p>
                         </label>
 
-                        <!-- 锤头鲨-追击 -->
+                        <!-- 峡湾-追击 -->
                         <label
                             class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
-                            <span class="font-medium text-gray-700">锤头鲨-追击</span>
-                            <input type="checkbox" id="hammershark-chase"
-                                class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
+                            <span class="font-medium text-gray-700">峡湾-追击</span>
+                            <p class="text-sm text-gray-400 mt-2">攻击有脆弱标记的目标时，眼睛视为重击</p>
+                            <input type="checkbox" id="sealock-chase"
+                                class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary"
+                                disabled>
                         </label>
 
                         <!-- 薮猫-协同观测 -->
                         <label
                             class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
                             <span class="font-medium text-gray-700">薮猫-协同观测</span>
+                            <p class="text-sm text-gray-400 mt-2">友军在射击本机可见的目标时，可以重投攻击骰中的眼睛</p>
                             <input type="checkbox" id="caracal-observe"
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
@@ -410,8 +422,8 @@
         const lowProfile = document.getElementById('low-profile');
         const kcArmor = document.getElementById('kc-armor');
         const strobeWeapon = document.getElementById('strobe-weapon');
-        // 锤头鲨-追击
-        const hammersharkChase = document.getElementById('hammershark-chase');
+        // 峡湾-追击
+        const sealockChase = document.getElementById('sealock-chase');
         // 薮猫-协同观测
         const caracalObserve = document.getElementById('caracal-observe');
 
@@ -566,11 +578,11 @@
         ];
         // 蒙特卡洛模拟次数
         const totalSimulations = 10000;
-        
+
         // ------------------- 模拟攻击骰子 -------------------
         function rollattackDice(count, faces, options) {
-            const { isAttackStance, isStrobeWeapon, isIonWeapon, isFragile, isHammersharkChase,isCaracalObserve } = options;
-            let qDamage = 0, hDamage = 0,eyeCount=0;
+            const { isAttackStance, isStrobeWeapon, isIonWeapon, isFragile, issealockChase, isCaracalObserve } = options;
+            let qDamage = 0, hDamage = 0, eyeCount = 0;
 
             for (let i = 0; i < count; i++) {
                 const face = faces[Math.floor(Math.random() * faces.length)];
@@ -597,7 +609,7 @@
                         break;
 
                     case 'eye':
-                        if (isHammersharkChase) hDamage += 1;else if(isCaracalObserve) eyeCount++;// 薮猫-协同观测,记录眼睛数量
+                        if (issealockChase) hDamage += 1; else if (isCaracalObserve) eyeCount++;// 薮猫-协同观测,记录眼睛数量
                         break;
 
                     default:
@@ -605,7 +617,7 @@
                 }
             }
 
-            return { qDamage, hDamage,eyeCount };
+            return { qDamage, hDamage, eyeCount };
         }
 
         // ------------------- 模拟防御或回避骰子 -------------------
@@ -650,7 +662,7 @@
                 isLowProfile: lowProfile.checked,
                 isKcArmor: kcArmor.checked,
                 isStrobeWeapon: strobeWeapon.checked,
-                isHammersharkChase: hammersharkChase.checked,
+                issealockChase: sealockChase.checked,
                 isCaracalObserve: caracalObserve.checked,
                 isFragile: parseInt(fragile.value) > 0
             };
@@ -664,17 +676,17 @@
             const penetrationFrequency = {};
 
             for (let sim = 0; sim < totalSimulations; sim++) {
-                let { qDamage: q1, hDamage: h1,eyeCount:lightEyeCount} = rollattackDice(lightCount, lightDiceFaces, options);
-                let { qDamage: q2, hDamage: h2,eyeCount:heavyEyeCount } = rollattackDice(heavyCount, heavyDiceFaces, options);
+                let { qDamage: q1, hDamage: h1, eyeCount: lightEyeCount } = rollattackDice(lightCount, lightDiceFaces, options);
+                let { qDamage: q2, hDamage: h2, eyeCount: heavyEyeCount } = rollattackDice(heavyCount, heavyDiceFaces, options);
                 // 处理薮猫-协同观测效果,重新掷眼睛骰子
-                if(options.isCaracalObserve){
-                    if(lightEyeCount>0){
-                        const{qDamage:q1_re,hDamage:h1_re}=rollattackDice(lightEyeCount, lightDiceFaces, options);
-                        q1+=q1_re;h1+=h1_re;
+                if (options.isCaracalObserve) {
+                    if (lightEyeCount > 0) {
+                        const { qDamage: q1_re, hDamage: h1_re } = rollattackDice(lightEyeCount, lightDiceFaces, options);
+                        q1 += q1_re; h1 += h1_re;
                     }
-                    if(heavyEyeCount>0){
-                        const{qDamage:q2_re,hDamage:h2_re}=rollattackDice(heavyEyeCount, heavyDiceFaces, options);
-                        q2+=q2_re;h2+=h2_re;
+                    if (heavyEyeCount > 0) {
+                        const { qDamage: q2_re, hDamage: h2_re } = rollattackDice(heavyEyeCount, heavyDiceFaces, options);
+                        q2 += q2_re; h2 += h2_re;
                     }
                 }
 
@@ -773,12 +785,14 @@
             if (parseInt(fragile.value) > 0) {
                 fragile.value = parseInt(fragile.value) - 1;
                 updateIonWeaponState();
+                updatesealockChaseState();
             }
         });
         increaseFragile.addEventListener('click', () => {
             if (parseInt(fragile.value) < 10) {
                 fragile.value = parseInt(fragile.value) + 1;
                 updateIonWeaponState();
+                updatesealockChaseState()
             }
         });
 
@@ -789,6 +803,16 @@
             } else {
                 ionWeapon.disabled = true;
                 ionWeapon.checked = false;
+            }
+        }
+
+        // 更新锤头鲨状态
+        function updatesealockChaseState() {
+            if (parseInt(fragile.value) > 0) {
+                sealockChase.disabled = false;
+            } else {
+                sealockChase.disabled = true;
+                sealockChase.checked = false;
             }
         }
 
