@@ -46,12 +46,6 @@
 
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-8 max-w-5xl">
-        <!-- 页面标题 -->
-        <header class="mb-8 text-center">
-            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark mb-2 text-shadow">骰子概率计算器</h1>
-            <p class="text-gray-600 text-lg max-w-2xl mx-auto">计算不同姿态下投掷骰子的概率，帮助你在策略游戏中做出最佳决策</p>
-        </header>
-
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- 左侧控制面板 -->
             <div class="lg:col-span-1 space-y-6">
@@ -370,11 +364,6 @@
                 </div>
             </div>
         </main>
-
-        <!-- 页脚 -->
-        <footer class="mt-12 text-center text-gray-500 text-sm">
-            <p>骰子概率计算器 © 2025 | 设计与开发</p>
-        </footer>
     </div>
 
     <script>
@@ -748,7 +737,7 @@
             successBar.appendChild(successFill);
 
             const failBar = document.createElement('div');
-            failBar.className = 'w-full bg-red-50 rounded-lg overflow-hidden';
+            failBar.className = 'w-full  mb-2 bg-red-50 rounded-lg overflow-hidden';
 
             const failFill = document.createElement('div');
             failFill.className = 'h-10 bg-danger transition-all duration-1000 ease-out';
