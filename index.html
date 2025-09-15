@@ -360,10 +360,21 @@
                             <input type="checkbox" id="caracal-observe"
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
+
+                        <!-- 白矮星 -->
+                        <label
+                            class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
+                            <span class="font-medium text-gray-700">白矮星-推进器</span>
+                            <p class="text-sm text-gray-400 mt-2">本部件的浮游单元有弹药标记时，本机蓝骰的闪电视为闪避</p>
+                            <input type="checkbox" id="white-dwarf"
+                                class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
+                        </label>
+
                     </div>
                 </div>
             </div>
         </main>
+
     </div>
 
     <script>
@@ -415,6 +426,8 @@
         const sealockChase = document.getElementById('sealock-chase');
         // 薮猫-协同观测
         const caracalObserve = document.getElementById('caracal-observe');
+        // 薮猫-协同观测
+        const whiteDwarf = document.getElementById('white-dwarf');
 
         // 词条卡片折叠逻辑
         const entriesHeader = document.getElementById('entries-header');
@@ -611,7 +624,7 @@
 
         // ------------------- 模拟防御或回避骰子 -------------------
         function rollDefenseOrEvadeDice(count, faces, options) {
-            const { isDefenseStance, isLowProfile, isKcArmor } = options;
+            const { isDefenseStance, isLowProfile, isKcArmor, isWhiteDwarf } = options;
             let defense = 0, evade = 0;
 
             for (let i = 0; i < count; i++) {
@@ -628,8 +641,13 @@
                         evade += face.value;
                         break;
                     case 'lightning':
-                        if (isKcArmor) defense += 1;
-                        break;
+                        {
+                            if (isKcArmor) defense += 1;
+                            if(isWhiteDwarf && faces[0].type == "evade" ){//白矮星被动且为闪避骰，闪电视为闪避
+                                evade+=1;
+                            }
+                            break;
+                        }
                     case 'eye':
                         if (isLowProfile) evade += 1;
                         break;
@@ -653,7 +671,8 @@
                 isStrobeWeapon: strobeWeapon.checked,
                 issealockChase: sealockChase.checked,
                 isCaracalObserve: caracalObserve.checked,
-                isFragile: parseInt(fragile.value) > 0
+                isFragile: parseInt(fragile.value) > 0,
+                isWhiteDwarf: whiteDwarf.checked
             };
 
             const lightCount = parseInt(lightAttack.value);
