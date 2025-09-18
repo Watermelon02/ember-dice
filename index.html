@@ -106,6 +106,21 @@
                                 <p class="text-sm text-gray-500 ml-7 mt-1">只有此姿态下才有回避骰子</p>
                             </div>
                         </div>
+                        <div class="form-group flex items-start">
+                            <div class="mr-4 mt-1">
+                                <div class="w-12 h-12 rounded-full bg-yellow-200/10 flex items-center justify-center">
+                                    <i class="fa fa-bolt text-yellow-500 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" id="electronic-warfare"
+                                        class="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-400">
+                                    <span class="font-medium text-gray-700">电子战</span>
+                                </label>
+                                <p class="text-sm text-gray-500 ml-7 mt-1">选择后取消所有姿态并启用电子战骰子模式</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -116,7 +131,8 @@
                     </h2>
                     <div class="space-y-4">
                         <div class="form-group">
-                            <label for="light-attack" class="block text-gray-700 font-medium mb-2">轻击骰子</label>
+                            <label id="label-light" for="light-attack"
+                                class="block text-gray-700 font-medium mb-2">轻击骰子</label>
                             <div class="flex items-center">
                                 <button
                                     class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-l transition-custom"
@@ -188,6 +204,22 @@
                                     id="increase-evade" disabled>
                                     <i class="fa fa-plus"></i>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- 响应方轻击骰子(电子战专用) -->
+                        <div class="form-group hidden" id="responder-dice-group">
+                            <label for="responder-dice" class="block text-gray-700 font-medium mb-2">响应方轻击骰子</label>
+                            <div class="flex items-center">
+                                <button
+                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-l transition-custom"
+                                    id="decrease-responder">−</button>
+                                <input type="number" id="responder-dice" min="0" max="10" value="2"
+                                    class="w-full py-2 px-4 border-t border-b text-center focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    disabled>
+                                <button
+                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-r transition-custom"
+                                    id="increase-responder">+</button>
                             </div>
                         </div>
                     </div>
@@ -398,6 +430,8 @@
         const increaseDefense = document.getElementById('increase-defense');
         const decreaseEvade = document.getElementById('decrease-evade');
         const increaseEvade = document.getElementById('increase-evade');
+        const decreaseResponder = document.getElementById('decrease-responder');
+        const increaseResponder = document.getElementById('increase-responder');
 
         // 计算按钮和结果区域
         const calculateBtn = document.getElementById('calculate-btn');
@@ -407,6 +441,8 @@
         const successRate = document.getElementById('success-rate');
         const failRate = document.getElementById('fail-rate');
         const probabilityChart = document.getElementById('probability-chart');
+        const responderGroup = document.getElementById('responder-dice-group');
+        const labelLight = document.getElementById('label-light');
 
         //各种词条
         // 穿甲数量
@@ -434,6 +470,11 @@
         const entriesContent = document.getElementById('entries-content');
         const entriesArrow = document.getElementById('entries-arrow');
 
+        //电子战
+        const electronicWarfare = document.getElementById('electronic-warfare');
+        const responderDice = document.getElementById('responder-dice');
+
+
         entriesHeader.addEventListener('click', () => {
             entriesContent.classList.toggle('hidden');
             entriesArrow.classList.toggle('rotate-180');
@@ -458,6 +499,28 @@
             }
         });
 
+        // 当选择普通姿态时，自动取消电子战
+        [attackStance, defenseStance, mobileStance].forEach(stance => {
+            stance.addEventListener('change', () => {
+                if (stance.checked) {
+                    // 自动取消电子战模式
+                    electronicWarfare.checked = false;
+
+                    // 恢复轻击骰标签和响应方骰子控件
+                    labelLight.textContent = "轻击骰子";
+                    responderGroup.classList.add('hidden');
+                    responderDice.disabled = true;
+
+                    // 显示其他骰子组
+                    document.querySelectorAll('#heavy-attack, #defense-dice, #evade-dice').forEach(input => {
+                        input.parentElement.parentElement.classList.remove('hidden');
+                    });
+                }
+                updateEvadeDiceControls();
+            });
+        });
+
+
         // 更新回避骰子控件状态
         function updateEvadeDiceControls() {
             if (mobileStance.checked) {
@@ -480,7 +543,7 @@
         });
 
         increaseLight.addEventListener('click', () => {
-            if (parseInt(lightAttack.value)<20) {
+            if (parseInt(lightAttack.value) < 20) {
                 lightAttack.value = parseInt(lightAttack.value) + 1;
             }
         });
@@ -492,7 +555,7 @@
         });
 
         increaseHeavy.addEventListener('click', () => {
-            if (parseInt(heavyAttack.value)<20) {
+            if (parseInt(heavyAttack.value) < 20) {
                 heavyAttack.value = parseInt(heavyAttack.value) + 1;
             }
         });
@@ -504,7 +567,7 @@
         });
 
         increaseDefense.addEventListener('click', () => {
-            if (parseInt(defenseDice.value)<20) {
+            if (parseInt(defenseDice.value) < 20) {
                 defenseDice.value = parseInt(defenseDice.value) + 1;
             }
         });
@@ -516,10 +579,61 @@
         });
 
         increaseEvade.addEventListener('click', () => {
-            if (parseInt(evadeDice.value)<20) {
+            if (parseInt(evadeDice.value) < 20) {
                 evadeDice.value = parseInt(evadeDice.value) + 1;
             }
         });
+
+        decreaseResponder.addEventListener('click', () => {
+            if (parseInt(responderDice.value) > 0) responderDice.value = parseInt(responderDice.value) - 1;
+        });
+        increaseResponder.addEventListener('click', () => {
+            if (parseInt(responderDice.value) < 20) responderDice.value = parseInt(responderDice.value) + 1;
+        });
+
+        // ------------------- 电子战逻辑 -------------------
+        electronicWarfare.addEventListener('change', function () {
+            const diceGroups = [
+                document.getElementById('heavy-attack').parentElement.parentElement, // 重击
+                document.getElementById('defense-dice').parentElement.parentElement, // 防御
+                document.getElementById('evade-dice').parentElement.parentElement      // 回避
+            ];
+
+            if (this.checked) {
+                // 取消所有姿态
+                attackStance.checked = false;
+                defenseStance.checked = false;
+                mobileStance.checked = false;
+
+                // 禁用回避骰子
+                evadeDice.value = 0;
+                updateEvadeDiceControls();
+
+                // 显示电子战骰子模式
+                labelLight.textContent = "发起方轻击骰子";
+                responderGroup.classList.remove('hidden');
+                lightAttack.disabled = false;
+                responderDice.disabled = false;
+
+                // 隐藏其他骰子组
+                diceGroups.forEach(group => group.classList.add('hidden'));
+            } else {
+                // 恢复普通骰子
+                labelLight.textContent = "轻击骰子";
+                responderGroup.classList.add('hidden');
+                lightAttack.disabled = false;
+                responderDice.disabled = true;
+
+                diceGroups.forEach(group => group.classList.remove('hidden'));
+
+                // 恢复回避骰子控件
+                updateEvadeDiceControls();
+            }
+        });
+
+
+
+
 
         // 计算按钮点击事件
         calculateBtn.addEventListener('click', function () {
@@ -530,9 +644,74 @@
 
             // 模拟计算延迟，实际应用中可以移除
             setTimeout(() => {
-                calculateProbabilities();
+                if (electronicWarfare.checked) {
+                    calculateElectronicWarfare();
+                } else {
+                    calculateProbabilities();
+
+                }
             }, 800);
         });
+
+        function calculateElectronicWarfare() {
+    const attackerDiceCount = parseInt(lightAttack.value);
+    const responderDiceCount = parseInt(responderDice.value);
+
+    const totalSimulations = 10000;
+    let successCount = 0;
+    const penetrationFrequency = {}; // 添加频率统计
+
+    for (let i = 0; i < totalSimulations; i++) {
+        const attackerResult = rollattackDice(attackerDiceCount, lightDiceFaces, {
+            isAttackStance: true,
+            isStrobeWeapon: false,
+            isIonWeapon: false,
+            isFragile: false,
+            issealockChase: false,
+            isCaracalObserve: false
+        });
+
+        const responderResult = rollattackDice(responderDiceCount, lightDiceFaces, {
+            isAttackStance: true,
+            isStrobeWeapon: false,
+            isIonWeapon: false,
+            isFragile: false,
+            issealockChase: false,
+            isCaracalObserve: false
+        });
+
+        const attackerLightning = attackerResult.hDamage;
+        const responderLightning = responderResult.hDamage;
+        const attackerLight = attackerResult.qDamage;
+        const responderLight = responderResult.qDamage;
+
+        let penetration = 0;
+        if (attackerLightning > responderLightning) penetration = 1;
+        else if (attackerLightning < responderLightning) penetration = 0;
+        else {
+            if (attackerLight > responderLight) penetration = 1;
+            else if (attackerLight < responderLight) penetration = 0;
+            else penetration = 1;
+        }
+
+        successCount += penetration;
+        penetrationFrequency[penetration] = (penetrationFrequency[penetration] || 0) + 1;
+    }
+
+    const successPercentage = Math.round((successCount / totalSimulations) * 100);
+    const failPercentage = 100 - successPercentage;
+
+    successRate.textContent = `${successPercentage}%`;
+    failRate.textContent = `${failPercentage}%`;
+
+    // 关键：生成图表
+    generateChart(penetrationFrequency, successPercentage, failPercentage);
+
+    loadingIndicator.classList.add('hidden');
+    resultsContainer.classList.remove('hidden');
+}
+
+
 
         // 骰子面定义
         const lightDiceFaces = [
@@ -643,8 +822,8 @@
                     case 'lightning':
                         {
                             if (isKcArmor) defense += 1;
-                            if(isWhiteDwarf && faces[0].type == "evade" ){//白矮星被动且为闪避骰，闪电视为闪避
-                                evade+=1;
+                            if (isWhiteDwarf && faces[0].type == "evade") {//白矮星被动且为闪避骰，闪电视为闪避
+                                evade += 1;
                             }
                             break;
                         }
@@ -783,7 +962,7 @@
             }
         });
         increasePiercing.addEventListener('click', () => {
-            if (parseInt(piercing.value)<20) {
+            if (parseInt(piercing.value) < 20) {
                 piercing.value = parseInt(piercing.value) + 1;
             }
         });
@@ -797,7 +976,7 @@
             }
         });
         increaseFragile.addEventListener('click', () => {
-            if (parseInt(fragile.value)<20) {
+            if (parseInt(fragile.value) < 20) {
                 fragile.value = parseInt(fragile.value) + 1;
                 updateIonWeaponState();
                 updatesealockChaseState()
