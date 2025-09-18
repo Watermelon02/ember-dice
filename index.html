@@ -499,26 +499,7 @@
             }
         });
 
-        // 当选择普通姿态时，自动取消电子战
-        [attackStance, defenseStance, mobileStance].forEach(stance => {
-            stance.addEventListener('change', () => {
-                if (stance.checked) {
-                    // 自动取消电子战模式
-                    electronicWarfare.checked = false;
-
-                    // 恢复轻击骰标签和响应方骰子控件
-                    labelLight.textContent = "轻击骰子";
-                    responderGroup.classList.add('hidden');
-                    responderDice.disabled = true;
-
-                    // 显示其他骰子组
-                    document.querySelectorAll('#heavy-attack, #defense-dice, #evade-dice').forEach(input => {
-                        input.parentElement.parentElement.classList.remove('hidden');
-                    });
-                }
-                updateEvadeDiceControls();
-            });
-        });
+        
 
 
         // 更新回避骰子控件状态
@@ -599,11 +580,13 @@
                 document.getElementById('evade-dice').parentElement.parentElement      // 回避
             ];
 
+            const allEntries = [
+                piercing, fragile, ionWeapon, lowProfile, kcArmor, strobeWeapon,
+                sealockChase, caracalObserve, whiteDwarf
+            ];
+
             if (this.checked) {
-                // 取消所有姿态
-                attackStance.checked = false;
-                defenseStance.checked = false;
-                mobileStance.checked = false;
+
 
                 // 禁用回避骰子
                 evadeDice.value = 0;
@@ -617,6 +600,13 @@
 
                 // 隐藏其他骰子组
                 diceGroups.forEach(group => group.classList.add('hidden'));
+
+                // 禁用所有词条
+                allEntries.forEach(entry => {
+                    if (entry.type === 'checkbox') entry.checked = false;
+                    else entry.value = 0;
+                    entry.disabled = true;
+                });
             } else {
                 // 恢复普通骰子
                 labelLight.textContent = "轻击骰子";
@@ -625,6 +615,9 @@
                 responderDice.disabled = true;
 
                 diceGroups.forEach(group => group.classList.remove('hidden'));
+
+                // 恢复词条可用
+                allEntries.forEach(entry => entry.disabled = false);
 
                 // 恢复回避骰子控件
                 updateEvadeDiceControls();
@@ -654,62 +647,62 @@
         });
 
         function calculateElectronicWarfare() {
-    const attackerDiceCount = parseInt(lightAttack.value);
-    const responderDiceCount = parseInt(responderDice.value);
+            const attackerDiceCount = parseInt(lightAttack.value);
+            const responderDiceCount = parseInt(responderDice.value);
 
-    const totalSimulations = 10000;
-    let successCount = 0;
-    const penetrationFrequency = {}; // 添加频率统计
+            const totalSimulations = 10000;
+            let successCount = 0;
+            const penetrationFrequency = {}; // 添加频率统计
 
-    for (let i = 0; i < totalSimulations; i++) {
-        const attackerResult = rollattackDice(attackerDiceCount, lightDiceFaces, {
-            isAttackStance: true,
-            isStrobeWeapon: false,
-            isIonWeapon: false,
-            isFragile: false,
-            issealockChase: false,
-            isCaracalObserve: false
-        });
+            for (let i = 0; i < totalSimulations; i++) {
+                const attackerResult = rollattackDice(attackerDiceCount, lightDiceFaces, {
+                    isAttackStance: attackStance.checked,
+                    isStrobeWeapon: false,
+                    isIonWeapon: false,
+                    isFragile: false,
+                    issealockChase: false,
+                    isCaracalObserve: false
+                });
 
-        const responderResult = rollattackDice(responderDiceCount, lightDiceFaces, {
-            isAttackStance: true,
-            isStrobeWeapon: false,
-            isIonWeapon: false,
-            isFragile: false,
-            issealockChase: false,
-            isCaracalObserve: false
-        });
+                const responderResult = rollattackDice(responderDiceCount, lightDiceFaces, {
+                    isAttackStance: attackStance.checked,
+                    isStrobeWeapon: false,
+                    isIonWeapon: false,
+                    isFragile: false,
+                    issealockChase: false,
+                    isCaracalObserve: false
+                });
 
-        const attackerLightning = attackerResult.hDamage;
-        const responderLightning = responderResult.hDamage;
-        const attackerLight = attackerResult.qDamage;
-        const responderLight = responderResult.qDamage;
+                const attackerLightning = attackerResult.hDamage;
+                const responderLightning = responderResult.hDamage;
+                const attackerLight = attackerResult.qDamage;
+                const responderLight = responderResult.qDamage;
 
-        let penetration = 0;
-        if (attackerLightning > responderLightning) penetration = 1;
-        else if (attackerLightning < responderLightning) penetration = 0;
-        else {
-            if (attackerLight > responderLight) penetration = 1;
-            else if (attackerLight < responderLight) penetration = 0;
-            else penetration = 1;
+                let penetration = 0;
+                if (attackerLightning > responderLightning) penetration = 1;
+                else if (attackerLightning < responderLightning) penetration = 0;
+                else {
+                    if (attackerLight > responderLight) penetration = 1;
+                    else if (attackerLight < responderLight) penetration = 0;
+                    else penetration = 1;
+                }
+
+                successCount += penetration;
+                penetrationFrequency[penetration] = (penetrationFrequency[penetration] || 0) + 1;
+            }
+
+            const successPercentage = Math.round((successCount / totalSimulations) * 100);
+            const failPercentage = 100 - successPercentage;
+
+            successRate.textContent = `${successPercentage}%`;
+            failRate.textContent = `${failPercentage}%`;
+
+            // 关键：生成图表
+            generateChart(penetrationFrequency, successPercentage, failPercentage);
+
+            loadingIndicator.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
         }
-
-        successCount += penetration;
-        penetrationFrequency[penetration] = (penetrationFrequency[penetration] || 0) + 1;
-    }
-
-    const successPercentage = Math.round((successCount / totalSimulations) * 100);
-    const failPercentage = 100 - successPercentage;
-
-    successRate.textContent = `${successPercentage}%`;
-    failRate.textContent = `${failPercentage}%`;
-
-    // 关键：生成图表
-    generateChart(penetrationFrequency, successPercentage, failPercentage);
-
-    loadingIndicator.classList.add('hidden');
-    resultsContainer.classList.remove('hidden');
-}
 
 
 
@@ -837,6 +830,7 @@
 
             return { defense, evade };
         }
+
 
         // ------------------- 计算概率函数 -------------------
         function calculateProbabilities() {
