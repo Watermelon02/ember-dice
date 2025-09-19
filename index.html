@@ -499,7 +499,7 @@
             }
         });
 
-        
+
 
 
         // 更新回避骰子控件状态
@@ -647,44 +647,33 @@
         });
 
         function calculateElectronicWarfare() {
-            const attackerDiceCount = parseInt(lightAttack.value);
-            const responderDiceCount = parseInt(responderDice.value);
+            const attackerDiceCount = parseInt(lightAttack.value);   // 发起方骰子数
+            const defenderDiceCount = parseInt(responderDice.value); // 受方骰子数
+            const isAttackStance = attackStance.checked;             // 是否攻击姿态
 
-            const totalSimulations = 10000;
+            const totalSimulations = 10000; // 模拟次数
             let successCount = 0;
-            const penetrationFrequency = {}; // 添加频率统计
+            const penetrationFrequency = {};
 
             for (let i = 0; i < totalSimulations; i++) {
-                const attackerResult = rollattackDice(attackerDiceCount, lightDiceFaces, {
-                    isAttackStance: attackStance.checked,
-                    isStrobeWeapon: false,
-                    isIonWeapon: false,
-                    isFragile: false,
-                    issealockChase: false,
-                    isCaracalObserve: false
-                });
+                const attackerResult = rollElectronicDice(attackerDiceCount, lightDiceFaces, { isAttackStance });
+                const defenderResult = rollElectronicDice(defenderDiceCount, lightDiceFaces, { isAttackStance: false });
 
-                const responderResult = rollattackDice(responderDiceCount, lightDiceFaces, {
-                    isAttackStance: attackStance.checked,
-                    isStrobeWeapon: false,
-                    isIonWeapon: false,
-                    isFragile: false,
-                    issealockChase: false,
-                    isCaracalObserve: false
-                });
+                let penetration = 0; // 1 = 发起方胜, 0 = 受方胜
 
-                const attackerLightning = attackerResult.hDamage;
-                const responderLightning = responderResult.hDamage;
-                const attackerLight = attackerResult.qDamage;
-                const responderLight = responderResult.qDamage;
-
-                let penetration = 0;
-                if (attackerLightning > responderLightning) penetration = 1;
-                else if (attackerLightning < responderLightning) penetration = 0;
-                else {
-                    if (attackerLight > responderLight) penetration = 1;
-                    else if (attackerLight < responderLight) penetration = 0;
-                    else penetration = 1;
+                // 胜负规则
+                if (attackerResult.lightning > defenderResult.lightning) {
+                    penetration = 1;
+                } else if (attackerResult.lightning < defenderResult.lightning) {
+                    penetration = 0;
+                } else { // 闪电相同
+                    if (attackerResult.qDamage > defenderResult.qDamage) {
+                        penetration = 1;
+                    } else if (attackerResult.qDamage < defenderResult.qDamage) {
+                        penetration = 0;
+                    } else {
+                        penetration = 1; // 平手 → 发起方胜
+                    }
                 }
 
                 successCount += penetration;
@@ -697,7 +686,6 @@
             successRate.textContent = `${successPercentage}%`;
             failRate.textContent = `${failPercentage}%`;
 
-            // 关键：生成图表
             generateChart(penetrationFrequency, successPercentage, failPercentage);
 
             loadingIndicator.classList.add('hidden');
@@ -793,6 +781,36 @@
 
             return { qDamage, hDamage, eyeCount };
         }
+
+        // 电战专用掷骰子
+        function rollElectronicDice(count, faces, options) {
+            const { isAttackStance } = options;
+            let qDamage = 0, hDamage = 0, eyeCount = 0, lightning = 0;
+
+            for (let i = 0; i < count; i++) {
+
+
+                const face = faces[Math.floor(Math.random() * faces.length)];
+
+                switch (face.type) {
+                    case 'light':
+                        qDamage += face.value;
+                        break;
+                    case 'lightning':
+                        lightning += 1;
+                        break;
+                    case 'hollow-light':
+                        if (isAttackStance) qDamage += face.value;
+                        break;
+                    case 'blank':
+                        break;
+                    default: break
+                }
+            }
+
+            return { qDamage, hDamage, eyeCount, lightning };
+        }
+
 
         // ------------------- 模拟防御或回避骰子 -------------------
         function rollDefenseOrEvadeDice(count, faces, options) {
