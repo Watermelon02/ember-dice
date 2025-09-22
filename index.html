@@ -383,6 +383,14 @@
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary"
                                 disabled>
                         </label>
+                        <!-- 锤头鲨-猛攻 -->
+                        <label
+                            class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
+                            <span class="font-medium text-gray-700">锤头鲨-猛攻</span>
+                            <p class="text-sm text-gray-400 mt-2">【攻击姿态】近战动作，眼睛视为轻击</p>
+                            <input type="checkbox" id="hammerHead-strike"
+                                class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
+                        </label>
 
                         <!-- 薮猫-协同观测 -->
                         <label
@@ -460,6 +468,8 @@
         const strobeWeapon = document.getElementById('strobe-weapon');
         // 峡湾-追击
         const sealockChase = document.getElementById('sealock-chase');
+        // 锤头鲨-猛攻
+        const hammerHeadStrike = document.getElementById('hammerHead-strike');
         // 薮猫-协同观测
         const caracalObserve = document.getElementById('caracal-observe');
         // 薮猫-协同观测
@@ -582,7 +592,7 @@
 
             const allEntries = [
                 piercing, fragile, ionWeapon, lowProfile, kcArmor, strobeWeapon,
-                sealockChase, caracalObserve, whiteDwarf
+                sealockChase, caracalObserve, whiteDwarf,hammerHeadStrike
             ];
 
             if (this.checked) {
@@ -743,7 +753,7 @@
 
         // ------------------- 模拟攻击骰子 -------------------
         function rollattackDice(count, faces, options) {
-            const { isAttackStance, isStrobeWeapon, isIonWeapon, isFragile, issealockChase, isCaracalObserve } = options;
+            const { isAttackStance, isStrobeWeapon, isIonWeapon, isFragile, issealockChase, isCaracalObserve,isHammerHeadStrike } = options;
             let qDamage = 0, hDamage = 0, eyeCount = 0;
 
             for (let i = 0; i < count; i++) {
@@ -771,7 +781,7 @@
                         break;
 
                     case 'eye':
-                        if (issealockChase) hDamage += 1; else if (isCaracalObserve) eyeCount++;// 薮猫-协同观测,记录眼睛数量
+                        if (issealockChase) hDamage += 1; else if (isCaracalObserve) eyeCount++;else if(isHammerHeadStrike && isAttackStance)qDamage+=1;// 薮猫-协同观测,记录眼睛数量
                         break;
 
                     default:
@@ -861,6 +871,7 @@
                 isKcArmor: kcArmor.checked,
                 isStrobeWeapon: strobeWeapon.checked,
                 issealockChase: sealockChase.checked,
+                isHammerHeadStrike:hammerHeadStrike.checked,
                 isCaracalObserve: caracalObserve.checked,
                 isFragile: parseInt(fragile.value) > 0,
                 isWhiteDwarf: whiteDwarf.checked
@@ -1005,7 +1016,7 @@
             }
         }
 
-        // 更新锤头鲨状态
+        // 更新峡湾-追击状态
         function updatesealockChaseState() {
             if (parseInt(fragile.value) > 0) {
                 sealockChase.disabled = false;
@@ -1014,6 +1025,8 @@
                 sealockChase.checked = false;
             }
         }
+
+        
 
 
         // 初始化页面
