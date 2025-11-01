@@ -164,7 +164,7 @@
                                     id="decrease-light">
                                     <i class="fa fa-minus"></i>
                                 </button>
-                                <input type="number" id="light-attack" min="0" max="10" value="2"
+                                <input type="number" id="light-attack" min="0" max="10" value="0"
                                     class="w-full py-2 px-4 border-t border-b text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
                                     disabled>
                                 <button
@@ -185,7 +185,7 @@
                                     id="decrease-heavy">
                                     <i class="fa fa-minus"></i>
                                 </button>
-                                <input type="number" id="heavy-attack" min="0" max="10" value="2"
+                                <input type="number" id="heavy-attack" min="0" max="10" value="0"
                                     class="w-full py-2 px-4 border-t border-b text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
                                     disabled>
                                 <button
@@ -206,7 +206,7 @@
                                     id="decrease-defense">
                                     <i class="fa fa-minus"></i>
                                 </button>
-                                <input type="number" id="defense-dice" min="0" max="10" value="2"
+                                <input type="number" id="defense-dice" min="0" max="10" value="0"
                                     class="w-full py-2 px-4 border-t border-b text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
                                     disabled>
                                 <button
@@ -973,6 +973,8 @@
             const lightCount = parseInt(lightAttack.value);
             const heavyCount = parseInt(heavyAttack.value);
             let defenseCount = parseInt(defenseDice.value) - parseInt(fragile.value) - parseInt(piercing.value);
+            //如果火山指定一白
+            if(options.isVolcano)defenseCount--;
             const evadeCount = parseInt(evadeDice.value);
 
             let successCount = 0;
@@ -996,7 +998,6 @@
                 let volcanoDefense = 0, volcanoEvade = 0;
                 //火山指定一白
                 if (options.isVolcano) {
-                    defenseCount--;
                     switch (volcanoSelect.value) {
                         case 'defense': { volcanoDefense++; break; }
                         case 'hollow-defense2': { if (defenseStance.checked) volcanoDefense += 2; break };
@@ -1004,6 +1005,7 @@
                         default: break;
                     }
                 }
+                console.log(defenseCount)
 
                 const { defense, evade: dEvade } = rollDefenseOrEvadeDice(defenseCount, defenseDiceFaces, options);
                 const { defense: eDefense, evade: eEvade } = rollDefenseOrEvadeDice(evadeCount, evadeDiceFaces, options);
