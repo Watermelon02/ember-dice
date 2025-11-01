@@ -48,7 +48,13 @@ const i18n = {
     "white_dwarf_desc": "本部件的浮游单元有弹药标记时，本机蓝骰的闪电视为闪避",
     "attack_icon_alt": "攻击姿态图标",
     "defense_icon_alt": "防御姿态图标",
-    "mobility_icon_alt": "机动姿态图标"
+    "mobility_icon_alt": "机动姿态图标",
+    "volcano":"火山-装甲对抗措施",
+    "volcano_desc":"为本机进行任何投骰时，指定1白。",
+    "volcano_content":"选择指定内容：",
+    "volcano_defense":"指定1盾",
+    "volcano_2defense":"指定2盾（防御姿态生效）",
+    "volcano_evade":"指定1闪",
   },
   "en": {
     "title": "Dice Probability Calculator",
@@ -99,7 +105,13 @@ const i18n = {
     "white_dwarf_desc": 'If this module\'s floater has an ammo token, blue-dice "lightning" counts as evade',
     "attack_icon_alt": "attack stance icon",
     "defense_icon_alt": "defense stance icon",
-    "mobility_icon_alt": "mobility stance icon"
+    "mobility_icon_alt": "mobility stance icon",
+    "volcano":"Volcano - Armor Countermeasures",
+    "volcano_desc":"· When making Any Dice Roll for this mech, Designate 1 White.",
+"volcano_content": "Select the designate face:",
+"volcano_defense": "designate 1 defense",
+"volcano_2defense": "designate 2 defense (effective in defense stance)",
+"volcano_evade": "designate 1 evade",
   },
   "ja": {
     "title": "ダイス確率計算機",
@@ -150,6 +162,12 @@ const i18n = {
     "white_dwarf_desc": "この部品の浮遊ユニットに弾薬マーカーがある場合、青ダイスの稲妻は回避として扱う",
     "attack_icon_alt": "攻撃姿勢アイコン",
     "defense_icon_alt": "防御姿勢アイコン",
-    "mobility_icon_alt": "機動姿勢アイコン"
+    "mobility_icon_alt": "機動姿勢アイコン",
+    "volcano":"ボルカノ - 装甲対策",
+    "volcano_desc":"·この機甲の任意の判定ロールは、指定1W。",
+    "volcano_content": "指定する内容を選択：",
+"volcano_defense": "防御1を指定",
+"volcano_2defense": "防御2を指定（防御姿勢時に有効）",
+"volcano_evade": "回避1を指定",
   }
 };

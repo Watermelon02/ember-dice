@@ -50,21 +50,22 @@
             <!-- 左侧控制面板 -->
             <div class="lg:col-span-1 space-y-6">
                 <!-- 语言切换卡片 -->
-               <!-- 语言切换卡片 -->
-<div class="bg-white rounded-xl p-4 card-shadow transition-custom hover:shadow-lg flex items-center justify-between">
-  <h2 class="text-lg font-bold text-dark flex items-center">
-    <i class="fa fa-globe mr-2 text-primary"></i>
-    <span data-i18n="language">语言</span>
-  </h2>
-  <div class="flex space-x-2">
-    <button id="btn-zh" onclick="setLanguage('zh-CN')"
-      class="lang-btn px-3 py-1 rounded-lg text-sm font-medium transition-custom">中文</button>
-    <button id="btn-en" onclick="setLanguage('en')"
-      class="lang-btn px-3 py-1 rounded-lg text-sm font-medium transition-custom">EN</button>
-    <button id="btn-ja" onclick="setLanguage('ja')"
-      class="lang-btn px-3 py-1 rounded-lg text-sm font-medium transition-custom">日本語</button>
-  </div>
-</div>
+                <!-- 语言切换卡片 -->
+                <div
+                    class="bg-white rounded-xl p-4 card-shadow transition-custom hover:shadow-lg flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-dark flex items-center">
+                        <i class="fa fa-globe mr-2 text-primary"></i>
+                        <span data-i18n="language">语言</span>
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button id="btn-zh" onclick="setLanguage('zh-CN')"
+                            class="lang-btn px-3 py-1 rounded-lg text-sm font-medium transition-custom">中文</button>
+                        <button id="btn-en" onclick="setLanguage('en')"
+                            class="lang-btn px-3 py-1 rounded-lg text-sm font-medium transition-custom">EN</button>
+                        <button id="btn-ja" onclick="setLanguage('ja')"
+                            class="lang-btn px-3 py-1 rounded-lg text-sm font-medium transition-custom">日本語</button>
+                    </div>
+                </div>
 
 
                 <!-- 姿态选择卡片 -->
@@ -460,6 +461,32 @@
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
 
+                        <!-- 火山 -->
+                        <div class="bg-gray-50 rounded-lg p-4 flex flex-col hover:bg-gray-100 transition">
+                            <label class="flex items-center justify-between cursor-pointer mb-2">
+                                <div>
+                                    <span class="font-medium text-gray-700" data-i18n="volcano">火山-装甲对抗措施</span>
+                                    <p class="text-sm text-gray-400 mt-2" data-i18n="volcano_desc">
+                                        为本机进行任何投骰时，指定1白。
+                                    </p>
+                                </div>
+                                <input type="checkbox" id="volcano"
+                                    class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary" />
+                            </label>
+
+                            <!-- 二级选择（默认隐藏） -->
+                            <div id="volcano-options" class="mt-2 hidden">
+                                <label class="text-gray-600 text-sm mb-1 block" data-i18n="volcano_content">选择指定内容：</label>
+                                <select id="volcano-select"
+                                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                    <option value="defense" data-i18n="volcano_defense">指定1盾</option>
+                                    <option value="hollow-defense2" data-i18n="volcano_2defense">指定2盾（防御姿态生效）</option>
+                                    <option value="evade" data-i18n="volcano_evade">指定1闪</option>
+                                </select>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
@@ -521,8 +548,24 @@
         const hammerHeadStrike = document.getElementById('hammerHead-strike');
         // 薮猫-协同观测
         const caracalObserve = document.getElementById('caracal-observe');
-        // 薮猫-协同观测
+        // 白矮星
         const whiteDwarf = document.getElementById('white-dwarf');
+        //火山
+        const volcanoCheckbox = document.getElementById("volcano");
+        const volcanoOptions = document.getElementById("volcano-options");
+        const volcanoSelect = document.getElementById("volcano-select");
+        document.addEventListener("DOMContentLoaded", () => {
+            volcanoCheckbox.addEventListener("change", () => {
+                if (volcanoCheckbox.checked) {
+                    volcanoOptions.classList.remove("hidden");
+                } else {
+                    volcanoOptions.classList.add("hidden");
+                    volcanoSelect.selectedIndex = 0; // 重置选择
+                }
+            });
+        });
+
+
 
         // 词条卡片折叠逻辑
         const entriesHeader = document.getElementById('entries-header');
@@ -923,12 +966,13 @@
                 isHammerHeadStrike: hammerHeadStrike.checked,
                 isCaracalObserve: caracalObserve.checked,
                 isFragile: parseInt(fragile.value) > 0,
-                isWhiteDwarf: whiteDwarf.checked
+                isWhiteDwarf: whiteDwarf.checked,
+                isVolcano:volcanoCheckbox.checked
             };
 
             const lightCount = parseInt(lightAttack.value);
             const heavyCount = parseInt(heavyAttack.value);
-            const defenseCount = parseInt(defenseDice.value) - parseInt(fragile.value) - parseInt(piercing.value);
+            let defenseCount = parseInt(defenseDice.value) - parseInt(fragile.value) - parseInt(piercing.value);
             const evadeCount = parseInt(evadeDice.value);
 
             let successCount = 0;
@@ -949,13 +993,25 @@
                     }
                 }
 
+                let volcanoDefense = 0, volcanoEvade = 0;
+                //火山指定一白
+                if (options.isVolcano) {
+                    defenseCount--;
+                    switch (volcanoSelect.value) {
+                        case 'defense': { volcanoDefense++; break; }
+                        case 'hollow-defense2': { if (defenseStance.checked) volcanoDefense += 2; break };
+                        case 'evade': { volcanoEvade++; break };
+                        default: break;
+                    }
+                }
+
                 const { defense, evade: dEvade } = rollDefenseOrEvadeDice(defenseCount, defenseDiceFaces, options);
                 const { defense: eDefense, evade: eEvade } = rollDefenseOrEvadeDice(evadeCount, evadeDiceFaces, options);
 
                 const totalQ = q1 + q2;
                 const totalH = h1 + h2;
-                const totalDefense = defense + eDefense;
-                const totalEvade = dEvade + eEvade;
+                const totalDefense = volcanoDefense+defense + eDefense;
+                const totalEvade =volcanoEvade + dEvade + eEvade;
 
                 // 判断穿透
                 let penetration = 0;
@@ -1083,21 +1139,9 @@
     </script>
     <!-- 引入语言包（确保路径正确） -->
     <script src="./i18n.js"></script>
+    <script> function setLanguage(lang) { document.querySelectorAll("[data-i18n]").forEach(el => { const key = el.getAttribute("data-i18n"); if (i18n[lang] && i18n[lang][key]) { el.innerText = i18n[lang][key]; } }); document.documentElement.lang = lang; } // 默认中文 setLanguage("zh-CN"); </script>
+</body>
 
-    <script>
-        function setLanguage(lang) {
-            document.querySelectorAll("[data-i18n]").forEach(el => {
-                const key = el.getAttribute("data-i18n");
-                if (i18n[lang] && i18n[lang][key]) {
-                    el.innerText = i18n[lang][key];
-                }
-            });
-            document.documentElement.lang = lang;
-        }
-
-        // 默认中文
-        setLanguage("zh-CN");
-    </script>
 </body>
 
 </html>

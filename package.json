@@ -1,0 +1,27 @@
+{
+  "name": "ember-dice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "i18n.js",
+  "scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview"
+}
+,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Watermelon02/ember-dice.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Watermelon02/ember-dice/issues"
+  },
+  "homepage": "https://github.com/Watermelon02/ember-dice#readme",
+  "devDependencies": {
+    "vite": "^7.1.12"
+  }
+}
