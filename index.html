@@ -292,17 +292,24 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                                <h3 class="font-bold text-primary mb-2" data-i18n="hit_rate">命中成功概率</h3>
+                                <div class="flex items-end">
+                                    <span id="hit-rate" class="text-4xl font-bold text-primary">0%</span>
+                                    <span class="ml-2 text-gray-500 mb-1" data-i18n="possibility">可能性</span>
+                                </div>
+                            </div>
 
-                        <!-- 概率图表 -->
-                        <div class="mb-6">
-                            <h3 class="font-bold text-gray-700 mb-3" data-i18n="probability_distribution">穿透概率分布</h3>
-                            <div id="probability-chart" class="w-full h-64 bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-center h-full text-gray-400">
-                                    <i class="fa fa-spinner fa-spin mr-2"></i>
-                                    <span data-i18n="generating_chart">正在生成图表...</span>
+                            <div class="bg-red-50 rounded-lg p-4 border-l-4 border-danger">
+                                <h3 class="font-bold text-danger mb-2" data-i18n="fail_hit_rate">命中失败概率</h3>
+                                <div class="flex items-end">
+                                    <span id="fail-hit-rate" class="text-4xl font-bold text-danger">0%</span>
+                                    <span class="ml-2 text-gray-500 mb-1" data-i18n="possibility">可能性</span>
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <div id="initial-message" class="text-center py-12 text-gray-500">
@@ -536,7 +543,10 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const successRate = document.getElementById('success-rate');
         const failRate = document.getElementById('fail-rate');
+        const hitRate = document.getElementById('hit-rate');
+        const failHitRate = document.getElementById('fail-hit-rate');
         const probabilityChart = document.getElementById('probability-chart');
+        const hitChart = document.getElementById('hit-chart');
         const responderGroup = document.getElementById('responder-dice-group');
         const labelLight = document.getElementById('label-light');
 
@@ -994,7 +1004,9 @@
             const evadeCount = parseInt(evadeDice.value);
 
             let successCount = 0;
+            let hitCount = 0;
             const penetrationFrequency = {};
+            const hitFrequency = {};
 
             for (let sim = 0; sim < totalSimulations; sim++) {
                 let { qDamage: q1, hDamage: h1, eyeCount: lightEyeCount } = rollattackDice(lightCount, lightDiceFaces, options);
@@ -1021,7 +1033,6 @@
                         default: break;
                     }
                 }
-                console.log(defenseCount)
 
                 const { defense, evade: dEvade } = rollDefenseOrEvadeDice(defenseCount, defenseDiceFaces, options);
                 const { defense: eDefense, evade: eEvade } = rollDefenseOrEvadeDice(evadeCount, evadeDiceFaces, options);
@@ -1037,6 +1048,12 @@
 
                 successCount += penetration;
                 penetrationFrequency[penetration] = (penetrationFrequency[penetration] || 0) + 1;
+
+                //判断命中
+                let hit = false;
+                if (totalH + totalQ > totalEvade) hit = true
+                hitCount += hit ? 1 : 0;
+                hitFrequency[hit] = (hitFrequency[hit] || 0) + 1;
             }
 
             const successPercentage = Math.round((successCount / totalSimulations) * 100);
@@ -1045,7 +1062,14 @@
             successRate.textContent = `${successPercentage}%`;
             failRate.textContent = `${failPercentage}%`;
 
-            generateChart(penetrationFrequency, successPercentage, failPercentage);
+
+
+            const hitPercentage = Math.round((hitCount / totalSimulations) * 100);
+            const missPercentage = 100 - hitPercentage;
+
+            hitRate.textContent = `${hitPercentage}%`;
+            failHitRate.textContent = `${missPercentage}%`;
+
 
             loadingIndicator.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
@@ -1100,6 +1124,56 @@
             chartContainer.appendChild(successBar);
             chartContainer.appendChild(failBar);
         }
+
+        // 生成命中率图表函数
+        function generateHitChart(frequencyData, successRate, failRate) {
+            // 清空图表区域
+            hitChart.innerHTML = '';
+
+            // 创建图表容器
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'w-full h-full';
+            hitChart.appendChild(chartContainer);
+
+            // 创建穿透成功和失败的柱状图
+            const successBar = document.createElement('div');
+            successBar.className = 'w-full mb-2 bg-blue-50 rounded-lg overflow-hidden';
+
+            const successFill = document.createElement('div');
+            successFill.className = 'h-10 bg-primary transition-all duration-1000 ease-out';
+            successFill.style.width = `${successRate}%`;
+
+            const successLabel = document.createElement('div');
+            successLabel.className = 'flex items-center justify-between px-4 py-2 text-white font-bold';
+            successLabel.innerHTML = `
+                <span>命中成功</span>
+                <span>${successRate}%</span>
+            `;
+
+            successFill.appendChild(successLabel);
+            successBar.appendChild(successFill);
+
+            const failBar = document.createElement('div');
+            failBar.className = 'w-full  mb-2 bg-red-50 rounded-lg overflow-hidden';
+
+            const failFill = document.createElement('div');
+            failFill.className = 'h-10 bg-danger transition-all duration-1000 ease-out';
+            failFill.style.width = `${failRate}%`;
+
+            const failLabel = document.createElement('div');
+            failLabel.className = 'flex items-center justify-between px-4 py-2 text-white font-bold';
+            failLabel.innerHTML = `
+                <span>命中失败</span>
+                <span>${failRate}%</span>
+            `;
+
+            failFill.appendChild(failLabel);
+            failBar.appendChild(failFill);
+
+            chartContainer.appendChild(successBar);
+            chartContainer.appendChild(failBar);
+        }
+
 
         // 穿甲数量按钮逻辑
         decreasePiercing.addEventListener('click', () => {
