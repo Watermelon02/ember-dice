@@ -404,14 +404,14 @@
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
 
-                        <!-- ac-32c -->
+                        <!-- ac-32M -->
                         <label
                             class="bg-gray-50 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition">
                             <div>
-                                <span class="font-medium text-gray-700" data-i18n="ac_32c">ac-32c</span>
+                                <span class="font-medium text-gray-700" data-i18n="ac_32c">ac-32M</span>
                                 <p class="text-sm text-gray-400 mt-2" data-i18n="ac_32c_desc">可将眼睛视为2x轻击</p>
                             </div>
-                            <input type="checkbox" id="ac-32c"
+                            <input type="checkbox" id="ac-32M"
                                 class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
                         </label>
 
@@ -564,7 +564,7 @@
         const lowProfile = document.getElementById('low-profile');
         const kcArmor = document.getElementById('kc-armor');
         const strobeWeapon = document.getElementById('strobe-weapon');
-        const ac_32c = document.getElementById('ac-32c');
+        const ac_32c = document.getElementById('ac-32M');
         // 峡湾-追击
         const sealockChase = document.getElementById('sealock-chase');
         // 锤头鲨-猛攻
@@ -810,8 +810,6 @@
 
             successRate.textContent = `${successPercentage}%`;
             failRate.textContent = `${failPercentage}%`;
-
-            generateChart(penetrationFrequency, successPercentage, failPercentage);
 
             loadingIndicator.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
