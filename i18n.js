@@ -60,6 +60,10 @@ const i18n = {
     "volcano_defense":"指定1盾",
     "volcano_2defense":"指定2盾（防御姿态生效）",
     "volcano_evade":"指定1闪",
+    "link_attacker":"LINK重投 - 攻击方",
+    "link_attacker_desc":"由于算法问题，会有一定误差",
+    "link_defender":"LINK重投 - 防御方",
+    "link_defender_desc":"由于算法问题，会有一定误差",
   },
   "en": {
     "title": "Dice Probability Calculator",
@@ -122,6 +126,10 @@ const i18n = {
 "volcano_defense": "designate 1 defense",
 "volcano_2defense": "designate 2 defense (effective in defense stance)",
 "volcano_evade": "designate 1 evade",
+    "link_attacker": "LINK - Attacker",
+    "link_attacker_desc": "Attacker may reroll useless or marginal dice once",
+    "link_defender": "LINK - Defender",
+    "link_defender_desc": "Defender may reroll useless or marginal dice once",
   },
   "ja": {
     "title": "ダイス確率計算機",
@@ -184,5 +192,9 @@ const i18n = {
 "volcano_defense": "防御1を指定",
 "volcano_2defense": "防御2を指定（防御姿勢時に有効）",
 "volcano_evade": "回避1を指定",
+    "link_attacker": "LINK - 攻撃側",
+    "link_attacker_desc": "攻撃側は有用でないダイスを一度だけ振り直せる",
+    "link_defender": "LINK - 防御側",
+    "link_defender_desc": "防御側は有用でないダイスを一度だけ振り直せる",
   }
 };
