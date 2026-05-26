@@ -828,20 +828,24 @@
             // EW专用重投编排
             function applyEWLinkRerolls(attackerFaces, defenderFaces) {
                 // Phase 1: useless reroll
-                for (const f of attackerFaces) {
-                    if (!f.rerolled && f.cls === 'useless') {
-                        const newFace = lightDiceFaces[Math.floor(Math.random() * lightDiceFaces.length)];
-                        f.type = newFace.type; f.value = newFace.value;
-                        f.cls = ewClassify(f, isAttackStance);
-                        f.rerolled = true;
+                if (isAttackerLink) {
+                    for (const f of attackerFaces) {
+                        if (!f.rerolled && f.cls === 'useless') {
+                            const newFace = lightDiceFaces[Math.floor(Math.random() * lightDiceFaces.length)];
+                            f.type = newFace.type; f.value = newFace.value;
+                            f.cls = ewClassify(f, isAttackStance);
+                            f.rerolled = true;
+                        }
                     }
                 }
-                for (const f of defenderFaces) {
-                    if (!f.rerolled && f.cls === 'useless') {
-                        const newFace = lightDiceFaces[Math.floor(Math.random() * lightDiceFaces.length)];
-                        f.type = newFace.type; f.value = newFace.value;
-                        f.cls = ewClassify(f, false);
-                        f.rerolled = true;
+                if (isDefenderLink) {
+                    for (const f of defenderFaces) {
+                        if (!f.rerolled && f.cls === 'useless') {
+                            const newFace = lightDiceFaces[Math.floor(Math.random() * lightDiceFaces.length)];
+                            f.type = newFace.type; f.value = newFace.value;
+                            f.cls = ewClassify(f, false);
+                            f.rerolled = true;
+                        }
                     }
                 }
 
@@ -930,7 +934,6 @@
                     for (const f of defenderFaces) {
                         if (f.type === 'lightning') defenderLightning++;
                         else if (f.type === 'light') defenderQDamage += f.value;
-                        else if (f.type === 'hollow-light') defenderQDamage += f.value; // defender never gets attack stance
                     }
                 } else {
                     // 原始路径
